@@ -71,9 +71,9 @@ try {
                     $params = [$searchParam, $searchParam];
                 }
 
-                $baseQuery = "SELECT p.product_id, p.product_code, p.product_name, p.Price as price, p.is_active,
-                                     p.stock_quantity, p.product_description as description, p.specifications,
-                                     p.main_image_path, p.product_document_path, p.product_document_name,
+                $baseQuery = "SELECT p.product_id, p.product_name, p.Price as price, p.is_active,
+                                     p.stock_quantity, p.product_description as description,
+                                     p.image_filename, p.document_filename,
                                      b.brand_id, b.brand_name, c.category_id, c.category_name
                               FROM PRODUCTS p
                               LEFT JOIN BRANDS b ON p.brand_id = b.brand_id

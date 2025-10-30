@@ -91,8 +91,17 @@ const adminStaff = {
             const statusClass = staff.is_active == 1 ? 'status-active' : 'status-inactive';
             const statusText = staff.is_active == 1 ? 'Active' : 'Inactive';
 
-            const roleClass = staff.user_type === 'admin' ? 'role-admin' : 'role-staff';
-            const roleText = staff.user_type === 'admin' ? 'Admin' : 'Staff';
+            let roleClass, roleText;
+            if (staff.user_type === 'admin') {
+                roleClass = 'role-admin';
+                roleText = 'Admin';
+            } else if (staff.user_type === 'staff') {
+                roleClass = 'role-staff';
+                roleText = 'Staff';
+            } else {
+                roleClass = 'role-customer';
+                roleText = 'Customer';
+            }
 
             const createdDate = staff.created_at ? new Date(staff.created_at).toLocaleDateString() : 'N/A';
 

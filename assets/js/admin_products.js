@@ -157,14 +157,14 @@ const adminProducts = {
         const pageProducts = this.filteredProducts.slice(start, end);
 
         if (pageProducts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px;">No products found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">No products found</td></tr>';
             return;
         }
 
         pageProducts.forEach(product => {
             const row = document.createElement('tr');
 
-            const imageUrl = product.main_image_path
+            const imageUrl = product.image_filename
                 ? `api/v1/get_product_image.php?id=${product.product_id}`
                 : 'assets/images/placeholder.png';
 
@@ -174,7 +174,6 @@ const adminProducts = {
 
             row.innerHTML = `
                 <td><img src="${imageUrl}" class="product-image-cell" alt="${product.product_name}" /></td>
-                <td>${product.product_code || 'N/A'}</td>
                 <td>${product.product_name}</td>
                 <td>${product.brand_name || 'N/A'}</td>
                 <td>${product.category_name || 'N/A'}</td>
@@ -237,7 +236,6 @@ const adminProducts = {
         document.getElementById('modal-title').textContent = 'Edit Product';
         document.getElementById('product-id').value = product.product_id;
         document.getElementById('product-name').value = product.product_name;
-        document.getElementById('product-code').value = product.product_code || '';
         document.getElementById('product-brand').value = product.brand_id || '';
         document.getElementById('product-category').value = product.category_id || '';
         document.getElementById('product-price').value = product.price;
@@ -245,7 +243,7 @@ const adminProducts = {
         document.getElementById('product-description').value = product.description || '';
         document.getElementById('product-specs').value = product.specifications || '';
 
-        if (product.main_image_path) {
+        if (product.image_filename) {
             const imageUrl = `api/v1/get_product_image.php?id=${product.product_id}`;
             document.getElementById('current-image-preview').innerHTML =
                 `<img src="${imageUrl}" alt="Current Image" />`;
@@ -268,7 +266,6 @@ const adminProducts = {
         }
 
         formData.append('product_name', document.getElementById('product-name').value);
-        formData.append('product_code', document.getElementById('product-code').value);
         formData.append('brand_id', document.getElementById('product-brand').value);
         formData.append('category_id', document.getElementById('product-category').value);
         formData.append('price', document.getElementById('product-price').value);
