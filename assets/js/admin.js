@@ -35,7 +35,16 @@ async function loadPage(page) {
         }
         if (page === 'admin_orders') await initAdminOrdersPage();
         if (page === 'admin_attributes') await initAdminAttributesPage();
-        if (page === 'admin_staff') await initAdminStaffPage();
+        if (page === 'admin_staff') {
+            const script = document.createElement('script');
+            script.src = 'assets/js/admin_staff.js';
+            script.onload = () => {
+                if (window.adminStaff) {
+                    window.adminStaff.init();
+                }
+            };
+            document.body.appendChild(script);
+        }
         if (page === 'admin_customers') await initAdminCustomersPage();
 
     } catch (error) {
@@ -605,7 +614,8 @@ async function initAdminAttributesPage() {
     mainContent.innerHTML += "<h2>Attributes Management</h2><p>Filters and search for Brands, Categories, and Types will go here.</p>";
 }
 
-async function initAdminStaffPage() {
+// Staff page now uses admin_staff.js
+async function initAdminStaffPage_OLD() {
     mainContent.innerHTML += "<h2>Staff Management</h2><p>Filters and search for staff will go here.</p>";
 }
 

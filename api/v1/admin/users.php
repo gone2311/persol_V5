@@ -35,7 +35,7 @@ try {
             }
 
             $stmt = $db->prepare("
-                SELECT user_id, user_code, user_type, email, full_name, phone_number, is_active, created_at
+                SELECT user_id, user_code, user_type, email, full_name, phone_number, address, is_active, created_at
                 FROM USERS
                 $whereClause
                 ORDER BY created_at DESC
@@ -43,6 +43,96 @@ try {
             $stmt->execute($params);
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $response = ['success' => true, 'data' => $users];
+            break;
+
+        case 'POST':
+            if (empty($data->user_type) || empty($data->full_name) || empty($data->email) || empty($data->password)) {
+                http_response_code(400);
+                $response['message'] = 'user_type, full_name, email, and password are required.';
+                echo json_encode($response);
+                exit();
+            }
+
+            $checkStmt = $db->prepare("SELECT user_id FROM USERS WHERE email = ? AND deleted_at IS NULL");
+            $checkStmt->execute([$data->email]);
+            if ($checkStmt->fetch()) {
+                http_response_code(400);
+                $response['message'] = 'Email already exists.';
+                echo json_encode($response);
+                exit();
+            }
+
+            $user_code = 'USR' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
+            $password_hash = password_hash($data->password, PASSWORD_BCRYPT);
+
+            $stmt = $db->prepare("
+                INSERT INTO USERS (user_code, user_type, username, password, email, full_name, phone_number, address, is_active)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+            ");
+            $stmt->execute([
+                $user_code,
+                $data->user_type,
+                $data->email,
+                $password_hash,
+                $data->email,
+                $data->full_name,
+                $data->phone_number ?? null,
+                $data->address ?? null
+            ]);
+
+            http_response_code(201);
+            $response = ['success' => true, 'message' => 'User created successfully.', 'user_id' => $db->lastInsertId()];
+            break;
+
+        case 'PUT':
+            if (empty($data->user_id)) {
+                http_response_code(400);
+                $response['message'] = 'user_id is required for update.';
+                echo json_encode($response);
+                exit();
+            }
+
+            $updateFields = [];
+            $updateParams = [];
+
+            if (!empty($data->full_name)) {
+                $updateFields[] = "full_name = ?";
+                $updateParams[] = $data->full_name;
+            }
+            if (!empty($data->email)) {
+                $updateFields[] = "email = ?";
+                $updateParams[] = $data->email;
+            }
+            if (!empty($data->user_type)) {
+                $updateFields[] = "user_type = ?";
+                $updateParams[] = $data->user_type;
+            }
+            if (isset($data->phone_number)) {
+                $updateFields[] = "phone_number = ?";
+                $updateParams[] = $data->phone_number;
+            }
+            if (isset($data->address)) {
+                $updateFields[] = "address = ?";
+                $updateParams[] = $data->address;
+            }
+            if (!empty($data->password)) {
+                $updateFields[] = "password = ?";
+                $updateParams[] = password_hash($data->password, PASSWORD_BCRYPT);
+            }
+
+            if (empty($updateFields)) {
+                http_response_code(400);
+                $response['message'] = 'No fields to update.';
+                echo json_encode($response);
+                exit();
+            }
+
+            $updateParams[] = $data->user_id;
+            $sql = "UPDATE USERS SET " . implode(", ", $updateFields) . " WHERE user_id = ?";
+            $stmt = $db->prepare($sql);
+            $stmt->execute($updateParams);
+
+            $response = ['success' => true, 'message' => 'User updated successfully.'];
             break;
 
         case 'TOGGLE_STATUS':
