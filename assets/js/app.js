@@ -990,6 +990,8 @@ async function loadPage(page, id = null) {
     if (page === "forgot-password") initForgotPasswordPage();
     if (page === "profile-detail") initProfileDetailPage();
     if (page === "change-password") initChangePasswordPage();
+    if (page === "privacy") {}
+    if (page === "terms") {}
   } catch (error) {
     console.error("Error loading page:", page, error);
     mainContent.innerHTML = `<h1>Error loading page (${page})</h1><p>${error.message}</p>`; // Changed
@@ -1018,6 +1020,8 @@ function router() {
     "forgot-password",
     "profile-detail",
     "change-password",
+    "privacy",
+    "terms",
   ];
   if (!allowedPages.includes(page)) {
     console.warn(`Invalid page route requested: ${page}`);

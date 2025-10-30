@@ -147,7 +147,7 @@ const adminDashboard = {
             const stockClass = product.stock_quantity < 5 ? 'stock-critical' : 'stock-low';
 
             row.innerHTML = `
-                <td>${product.product_code || 'N/A'}</td>
+                <td>#${product.product_id}</td>
                 <td>${product.product_name}</td>
                 <td>${product.brand_name || 'N/A'}</td>
                 <td class="${stockClass}">${product.stock_quantity}</td>
