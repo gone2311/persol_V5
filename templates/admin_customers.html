@@ -1,0 +1,30 @@
+<div class="container">
+    <h2>Customer Management</h2>
+
+    <div style="margin-bottom: 20px;">
+        <input type="text" id="customer-search" placeholder="Search by email, name, or phone..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+
+    <table id="admin-customer-list">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Full Name</th>
+                <th>Phone</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <div id="customers-pagination-controls" style="margin-top: 20px; text-align: center;">
+        <button id="btn-prev-page-customers" disabled>Previous</button>
+        <span id="page-info-customers" style="margin: 0 20px;">Page 1 of 1</span>
+        <button id="btn-next-page-customers" disabled>Next</button>
+    </div>
+</div>

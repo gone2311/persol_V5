@@ -1,6 +1,10 @@
 <div class="container">
     <h2>Product Management</h2>
-    <button id="btn-show-add-form">Add New Product</button>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button id="btn-show-add-form">Add New Product</button>
+        <input type="text" id="product-search" placeholder="Search products by name or brand..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
 
     <form id="product-form" class="admin-form" style="display:none;">
         <input type="hidden" id="product_id">

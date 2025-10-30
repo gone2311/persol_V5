@@ -11,14 +11,25 @@ $data = json_decode(file_get_contents("php://input"));
 
 try {
     if ($method == 'GET') {
+        $search = $_GET['search'] ?? '';
+        $whereClause = "";
+        $params = [];
+
+        if (!empty($search)) {
+            $whereClause = "WHERE (o.order_code LIKE ? OR u.full_name LIKE ? OR o.recipient_name LIKE ? OR o.order_status LIKE ?)";
+            $searchParam = "%{$search}%";
+            $params = [$searchParam, $searchParam, $searchParam, $searchParam];
+        }
+
         $stmt = $db->prepare("
             SELECT o.*, u.full_name AS customer_name
             FROM ORDERS o
             JOIN CUSTOMERS c ON o.customer_id = c.customer_id
             JOIN USERS u ON c.user_id = u.user_id
+            $whereClause
             ORDER BY o.created_at DESC
         ");
-        $stmt->execute();
+        $stmt->execute($params);
         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode(['success' => true, 'data' => $orders]);
 

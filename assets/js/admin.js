@@ -46,6 +46,7 @@ async function initAdminProductsPage() {
     const btnUploadDocument = document.getElementById('btn-upload-document');
     const btnCancelUpload = document.getElementById('btn-cancel-upload');
     const uploadStatus = document.getElementById('upload-status');
+    const productSearchInput = document.getElementById('product-search');
 
     if (!form || !tableBody || !showAddFormBtn || !cancelEditBtn || !brandSelect || !categorySelect || !typeSelect || !productImageInput || !previewImg || !documentUploadSection) {
         console.error("Missing essential elements on admin products page.");
@@ -82,6 +83,7 @@ async function initAdminProductsPage() {
     }
 
     let allProducts = [];
+    let filteredProducts = [];
     let currentPage = 1;
     const itemsPerPage = 10;
 
@@ -118,11 +120,11 @@ async function initAdminProductsPage() {
     function renderPage(page) {
         const startIndex = (page - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        const pageProducts = allProducts.slice(startIndex, endIndex);
+        const pageProducts = filteredProducts.slice(startIndex, endIndex);
 
         renderTable(pageProducts);
 
-        const totalPages = Math.ceil(allProducts.length / itemsPerPage);
+        const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
         if (pageInfo) {
             pageInfo.textContent = `Page ${page} of ${totalPages || 1}`;
         }
@@ -136,9 +138,27 @@ async function initAdminProductsPage() {
 
     if (productsRes && productsRes.success && productsRes.data) {
         allProducts = productsRes.data;
+        filteredProducts = allProducts;
         renderPage(currentPage);
     } else {
         tableBody.innerHTML = `<tr><td colspan="5">Error loading product list: ${productsRes ? productsRes.message : 'API Error'}</td></tr>`;
+    }
+
+    if (productSearchInput) {
+        productSearchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            if (searchTerm === '') {
+                filteredProducts = allProducts;
+            } else {
+                filteredProducts = allProducts.filter(p => {
+                    const name = (p.product_name || '').toLowerCase();
+                    const brand = (p.brand_name || '').toLowerCase();
+                    return name.includes(searchTerm) || brand.includes(searchTerm);
+                });
+            }
+            currentPage = 1;
+            renderPage(currentPage);
+        });
     }
 
     if (prevPageBtn) {
@@ -152,7 +172,7 @@ async function initAdminProductsPage() {
 
     if (nextPageBtn) {
         nextPageBtn.addEventListener('click', () => {
-            const totalPages = Math.ceil(allProducts.length / itemsPerPage);
+            const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
             if (currentPage < totalPages) {
                 currentPage++;
                 renderPage(currentPage);
@@ -414,9 +434,10 @@ async function initAdminProductsPage() {
 
 async function initAdminOrdersPage() {
     const tableBody = document.querySelector('#admin-order-list tbody');
-    const prevPageBtn = document.getElementById('btn-prev-page-orders'); // Cần thêm vào admin_orders.html
-    const nextPageBtn = document.getElementById('btn-next-page-orders'); // Cần thêm vào admin_orders.html
-    const pageInfo = document.getElementById('page-info-orders'); // Cần thêm vào admin_orders.html
+    const prevPageBtn = document.getElementById('btn-prev-page-orders');
+    const nextPageBtn = document.getElementById('btn-next-page-orders');
+    const pageInfo = document.getElementById('page-info-orders');
+    const orderSearchInput = document.getElementById('order-search');
 
     if (!tableBody) {
         console.error("Missing table body for admin orders page.");
@@ -434,6 +455,7 @@ async function initAdminOrdersPage() {
     }
 
     let allOrders = res.data;
+    let filteredOrders = res.data;
     let currentPage = 1;
     const itemsPerPage = 10;
 
@@ -469,10 +491,10 @@ async function initAdminOrdersPage() {
     function renderPage(page) {
         const startIndex = (page - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        const pageOrders = allOrders.slice(startIndex, endIndex);
+        const pageOrders = filteredOrders.slice(startIndex, endIndex);
         renderTable(pageOrders);
 
-        const totalPages = Math.ceil(allOrders.length / itemsPerPage);
+        const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
         if (pageInfo) {
             pageInfo.textContent = `Page ${page} of ${totalPages || 1}`;
         }
@@ -490,6 +512,25 @@ async function initAdminOrdersPage() {
         renderPage(currentPage);
     }
 
+    if (orderSearchInput) {
+        orderSearchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            if (searchTerm === '') {
+                filteredOrders = allOrders;
+            } else {
+                filteredOrders = allOrders.filter(o => {
+                    const orderCode = (o.order_code || '').toLowerCase();
+                    const customerName = (o.customer_name || '').toLowerCase();
+                    const recipientName = (o.recipient_name || '').toLowerCase();
+                    const status = (o.order_status || '').toLowerCase();
+                    return orderCode.includes(searchTerm) || customerName.includes(searchTerm) || recipientName.includes(searchTerm) || status.includes(searchTerm);
+                });
+            }
+            currentPage = 1;
+            renderPage(currentPage);
+        });
+    }
+
     if (prevPageBtn) {
         prevPageBtn.addEventListener('click', () => {
             if (currentPage > 1) {
@@ -501,7 +542,7 @@ async function initAdminOrdersPage() {
 
     if (nextPageBtn) {
         nextPageBtn.addEventListener('click', () => {
-            const totalPages = Math.ceil(allOrders.length / itemsPerPage);
+            const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
             if (currentPage < totalPages) {
                 currentPage++;
                 renderPage(currentPage);
@@ -541,11 +582,169 @@ async function initAdminOrdersPage() {
 async function initAdminAttributesPage() {
     mainContent.innerHTML += "<h2>Attributes Management</h2><p>Filters and search for Brands, Categories, and Types will go here.</p>";
 }
+
 async function initAdminStaffPage() {
     mainContent.innerHTML += "<h2>Staff Management</h2><p>Filters and search for staff will go here.</p>";
 }
+
 async function initAdminCustomersPage() {
-    mainContent.innerHTML += "<h2>Customer Management</h2><p>Filters and search for customers will go here.</p>";
+    const tableBody = document.querySelector('#admin-customer-list tbody');
+    const prevPageBtn = document.getElementById('btn-prev-page-customers');
+    const nextPageBtn = document.getElementById('btn-next-page-customers');
+    const pageInfo = document.getElementById('page-info-customers');
+    const customerSearchInput = document.getElementById('customer-search');
+
+    if (!tableBody) {
+        console.error("Missing table body for admin customers page.");
+        mainContent.innerHTML = '<h2>Customer management page structure error.</h2>';
+        return;
+    }
+
+    tableBody.innerHTML = '<tr><td colspan="8">Loading customers...</td></tr>';
+
+    const res = await api.admin_getAllUsers(token);
+
+    if (!res || !res.success || !res.data) {
+        tableBody.innerHTML = `<tr><td colspan="8">Error loading customers: ${res ? res.message : 'API Error'}</td></tr>`;
+        return;
+    }
+
+    let allUsers = res.data;
+    let filteredUsers = res.data;
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    function renderTable(users) {
+        tableBody.innerHTML = '';
+        if (!users || users.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="8">No customers found.</td></tr>';
+            return;
+        }
+
+        users.forEach(user => {
+            const statusChecked = user.is_active == 1 ? 'checked' : '';
+            const statusClass = user.is_active == 1 ? 'status-active' : 'status-inactive';
+
+            tableBody.innerHTML += `
+                <tr data-user-id="${user.user_id}" class="${statusClass}">
+                    <td>${user.user_id}</td>
+                    <td>${user.email || 'N/A'}</td>
+                    <td>${user.full_name || 'N/A'}</td>
+                    <td>${user.phone_number || 'N/A'}</td>
+                    <td>${user.user_type || 'customer'}</td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" class="user-status-toggle" data-user-id="${user.user_id}" ${statusChecked}>
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                    <td>${user.created_at ? new Date(user.created_at).toLocaleDateString('en-US') : 'N/A'}</td>
+                    <td>
+                        <button class="btn-view" data-user-id="${user.user_id}">View</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function renderPage(page) {
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const pageUsers = filteredUsers.slice(startIndex, endIndex);
+        renderTable(pageUsers);
+
+        const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+        if (pageInfo) {
+            pageInfo.textContent = `Page ${page} of ${totalPages || 1}`;
+        }
+        if (prevPageBtn) {
+            prevPageBtn.disabled = page === 1;
+        }
+        if (nextPageBtn) {
+            nextPageBtn.disabled = page >= totalPages;
+        }
+    }
+
+    if (allUsers.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="8">No customers found.</td></tr>';
+    } else {
+        renderPage(currentPage);
+    }
+
+    if (customerSearchInput) {
+        customerSearchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            if (searchTerm === '') {
+                filteredUsers = allUsers;
+            } else {
+                filteredUsers = allUsers.filter(u => {
+                    const email = (u.email || '').toLowerCase();
+                    const name = (u.full_name || '').toLowerCase();
+                    const phone = (u.phone_number || '').toLowerCase();
+                    return email.includes(searchTerm) || name.includes(searchTerm) || phone.includes(searchTerm);
+                });
+            }
+            currentPage = 1;
+            renderPage(currentPage);
+        });
+    }
+
+    if (prevPageBtn) {
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPage(currentPage);
+            }
+        });
+    }
+
+    if (nextPageBtn) {
+        nextPageBtn.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderPage(currentPage);
+            }
+        });
+    }
+
+    tableBody.addEventListener('click', async (e) => {
+        const target = e.target;
+
+        if (target.classList.contains('user-status-toggle')) {
+            const userId = target.dataset.userId;
+            const newStatus = target.checked ? 1 : 0;
+
+            target.disabled = true;
+            const res = await api.admin_toggleUserStatus(userId, newStatus, token);
+            target.disabled = false;
+
+            if (res.success) {
+                const row = target.closest('tr');
+                if (newStatus === 1) {
+                    row.classList.remove('status-inactive');
+                    row.classList.add('status-active');
+                } else {
+                    row.classList.remove('status-active');
+                    row.classList.add('status-inactive');
+                }
+                const userIndex = allUsers.findIndex(u => u.user_id == userId);
+                if (userIndex > -1) {
+                    allUsers[userIndex].is_active = newStatus;
+                }
+            } else {
+                alert(`Error updating status: ${res.message || 'Unknown error'}`);
+                target.checked = !newStatus;
+            }
+            return;
+        }
+
+        if (target.classList.contains('btn-view')) {
+            const userId = target.dataset.userId;
+            alert(`View user details for ID: ${userId}\n(Feature coming soon)`);
+            return;
+        }
+    });
 }
 
 function router() {

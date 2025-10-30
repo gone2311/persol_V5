@@ -165,5 +165,27 @@ export const api = {
             },
             body: formData
         });
+    },
+
+    admin_getAllUsers: (token) => {
+        return fetchAPI(`${API_BASE_URL}/admin/users.php`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+    },
+
+    admin_toggleUserStatus: (user_id, new_status, token) => {
+        return fetchAPI(`${API_BASE_URL}/admin/users.php`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                _method: 'TOGGLE_STATUS',
+                user_id: user_id,
+                new_status: new_status
+            })
+        });
     }
 };

@@ -60,12 +60,23 @@ try {
                     $response['message'] = 'Product not found.';
                 }
             } else {
-                $baseQuery = "SELECT p.product_id, p.product_name, p.Price, p.is_active, b.brand_name 
-                              FROM PRODUCTS p 
+                $search = $_GET['search'] ?? '';
+                $whereClause = "WHERE 1=1";
+                $params = [];
+
+                if (!empty($search)) {
+                    $whereClause .= " AND (p.product_name LIKE ? OR b.brand_name LIKE ?)";
+                    $searchParam = "%{$search}%";
+                    $params = [$searchParam, $searchParam];
+                }
+
+                $baseQuery = "SELECT p.product_id, p.product_name, p.Price, p.is_active, p.stock_quantity, b.brand_name
+                              FROM PRODUCTS p
                               LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
+                              $whereClause
                               ORDER BY p.product_id DESC";
                 $stmt = $db->prepare($baseQuery);
-                $stmt->execute();
+                $stmt->execute($params);
                 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 $response = ['success' => true, 'data' => $products];
             }
