@@ -30,8 +30,8 @@ try {
                 echo json_encode($response);
                 exit();
             }
-            $sql = "INSERT INTO PRODUCTS (product_name, Price, brand_id, category_id, type_id, product_description, stock_quantity, main_image, is_active)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)";
+            $sql = "INSERT INTO PRODUCTS (product_name, Price, brand_id, category_id, type_id, product_description, stock_quantity, main_image, document_filename, is_active)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
             $stmt = $db->prepare($sql);
             $stmt->execute([
                 $_POST['product_name'],
@@ -41,7 +41,8 @@ try {
                 $_POST['type_id'] ?: null,
                 $_POST['product_description'] ?? '',
                 $_POST['stock_quantity'] ?? 0,
-                $_POST['main_image'] ?? null
+                $_POST['main_image'] ?? null,
+                $_POST['document_filename'] ?? null
             ]);
             http_response_code(201);
             $response = ['success' => true, 'message' => 'Product created.', 'product_id' => $db->lastInsertId()];
@@ -95,7 +96,7 @@ try {
             }
             $sql = "UPDATE PRODUCTS SET
                         product_name = ?, Price = ?, brand_id = ?, category_id = ?, type_id = ?,
-                        product_description = ?, stock_quantity = ?, main_image = ? 
+                        product_description = ?, stock_quantity = ?, main_image = ?, document_filename = ?
                     WHERE product_id = ?";
             $stmt = $db->prepare($sql);
             $stmt->execute([
@@ -107,6 +108,7 @@ try {
                 $_POST['product_description'] ?? '',
                 $_POST['stock_quantity'] ?? 0,
                 $_POST['main_image'] ?? null,
+                $_POST['document_filename'] ?? null,
                 $_POST['product_id']
             ]);
             http_response_code(200);

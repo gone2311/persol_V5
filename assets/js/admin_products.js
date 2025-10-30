@@ -8,8 +8,35 @@ const adminProducts = {
 
     async init() {
         await this.loadData();
+        await this.loadDocuments();
         this.setupEventListeners();
         this.renderTable();
+    },
+
+    async loadDocuments() {
+        try {
+            const response = await fetch('uploads/');
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const links = Array.from(doc.querySelectorAll('a'));
+            const documents = links
+                .map(a => a.getAttribute('href'))
+                .filter(href => href && (href.endsWith('.pdf') || href.endsWith('.docx') || href.endsWith('.doc') || href.endsWith('.txt')))
+                .map(href => href.split('/').pop());
+
+            const select = document.getElementById('product-document-select');
+            if (select) {
+                documents.forEach(doc => {
+                    const option = document.createElement('option');
+                    option.value = doc;
+                    option.textContent = doc;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.log('Could not load documents list:', error);
+        }
     },
 
     async loadData() {
@@ -224,6 +251,11 @@ const adminProducts = {
                 `<img src="${imageUrl}" alt="Current Image" />`;
         }
 
+        const docSelect = document.getElementById('product-document-select');
+        if (docSelect) {
+            docSelect.value = product.document_filename || '';
+        }
+
         document.getElementById('product-modal').classList.add('active');
     },
 
@@ -243,6 +275,7 @@ const adminProducts = {
         formData.append('stock_quantity', document.getElementById('product-stock').value);
         formData.append('description', document.getElementById('product-description').value);
         formData.append('specifications', document.getElementById('product-specs').value);
+        formData.append('document_filename', document.getElementById('product-document-select').value);
 
         const imageFile = document.getElementById('product-image').files[0];
         if (imageFile) {

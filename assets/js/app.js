@@ -382,14 +382,26 @@ async function initProductDetailPage(id) {
 
   if (docsList) {
     docsList.innerHTML = "";
-    if (product.documents && product.documents.length > 0) {
-      product.documents.forEach((doc) => {
-        if (doc.document_id && doc.original_filename) {
-          docsList.innerHTML += `<li><a href="api/v1/download_document.php?id=${doc.document_id}" target="_blank" download="${doc.original_filename}">${doc.original_filename} (${doc.mime_type || "unknown"})</a></li>`;
-        }
-      });
+    if (product.document_filename) {
+      const docUrl = `uploads/${product.document_filename}`;
+      const fileExt = product.document_filename.split('.').pop().toUpperCase();
+      docsList.innerHTML = `
+        <li style="margin-bottom: 15px;">
+          <a href="${docUrl}"
+             target="_blank"
+             download="${product.document_filename}"
+             style="display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--primary-color); color: white; border-radius: 6px; text-decoration: none; font-weight: 600; transition: all 0.3s;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download Product Manual (${fileExt})
+          </a>
+        </li>
+      `;
     } else {
-      docsList.innerHTML = "<li>No documents available.</li>"; // Changed
+      docsList.innerHTML = "<li style='color: #999;'>No documents available for this product.</li>";
     }
   }
 
