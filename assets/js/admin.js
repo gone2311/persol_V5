@@ -90,18 +90,20 @@ async function initAdminProductsPage() {
     function renderTable(products) {
         tableBody.innerHTML = '';
         if (!products || products.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5">No products found.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="7">No products found.</td></tr>';
             return;
         }
         products.forEach(p => {
             const statusChecked = p.is_active == 1 ? 'checked' : '';
             const statusClass = p.is_active == 1 ? 'status-active' : 'status-inactive';
-            
+
             tableBody.innerHTML += `
                 <tr data-id="${p.product_id}" class="${statusClass}">
                     <td>${p.product_id}</td>
                     <td>${p.product_name || 'N/A'}</td>
+                    <td>${p.brand_name || 'N/A'}</td>
                     <td>$${p.Price ? parseFloat(p.Price).toFixed(2) : '0.00'}</td>
+                    <td>${p.stock_quantity || 0}</td>
                     <td>
                         <label class="switch">
                             <input type="checkbox" class="status-toggle" data-product-id="${p.product_id}" ${statusChecked}>

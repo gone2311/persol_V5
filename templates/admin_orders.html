@@ -1,28 +1,37 @@
-<div class="container">
-    <h2>Order Management</h2>
-
-    <div style="margin-bottom: 20px;">
-        <input type="text" id="order-search" placeholder="Search by order code, customer name, recipient, or status..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+<div class="admin-container">
+    <div class="page-header">
+        <h1>Order Management</h1>
+        <p class="page-description">Manage and track customer orders</p>
     </div>
 
-    <table id="admin-order-list">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Customer</th>
-                <th>Order Date</th>
-                <th>Total Amount</th>
-                <th>Order Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+    <div class="toolbar">
+        <input type="text" id="order-search" class="search-input" placeholder="Search by order code, customer name, recipient, or status...">
+    </div>
 
-    <div id="orders-pagination-controls" style="margin-top: 20px; text-align: center;">
-        <button id="btn-prev-page-orders" disabled>Previous</button>
-        <span id="page-info-orders" style="margin: 0 20px;">Page 1 of 1</span>
-        <button id="btn-next-page-orders" disabled>Next</button>
+    <div class="table-container">
+        <table id="admin-order-list" class="admin-table">
+            <thead>
+                <tr>
+                    <th>Order Code</th>
+                    <th>Customer</th>
+                    <th>Order Date</th>
+                    <th>Total Amount</th>
+                    <th>Order Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-controls">
+        <button id="btn-prev-page-orders" class="btn btn-secondary" disabled>
+            <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <span id="page-info-orders" class="page-info">Page 1 of 1</span>
+        <button id="btn-next-page-orders" class="btn btn-secondary" disabled>
+            Next <i class="fas fa-chevron-right"></i>
+        </button>
     </div>
 </div>

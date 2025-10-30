@@ -1,60 +1,109 @@
-<div class="container">
-    <h2>Product Management</h2>
+<div class="admin-container">
+    <div class="page-header">
+        <h1>Product Management</h1>
+        <p class="page-description">Manage your product catalog</p>
+    </div>
 
-    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-        <button id="btn-show-add-form">Add New Product</button>
-        <input type="text" id="product-search" placeholder="Search products by name or brand..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+    <div class="toolbar">
+        <button id="btn-show-add-form" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Product
+        </button>
+        <input type="text" id="product-search" class="search-input" placeholder="Search products by name or brand...">
     </div>
 
     <form id="product-form" class="admin-form" style="display:none;">
+        <h3>Product Information</h3>
         <input type="hidden" id="product_id">
-        
-        <label>Product Name:</label>
-        <input type="text" id="product_name" required>
-        
-        <label>Price:</label>
-        <input type="number" id="product_price" required>
-        
-        <label>Brand:</label>
-        <select id="product_brand"></select>
-        
-        <label>Category:</label>
-        <select id="product_category"></select>
-        
-        <label>Type:</label>
-        <select id="product_type"></select>
-        
-        <label>Description:</label>
-        <textarea id="product_description"></textarea>
-        
-        <label>Stock Quantity:</label>
-        <input type="number" id="product_quantity">
 
-        <label>Main Image File Name:</label>
-        <input type="text" id="product_main_image" placeholder="e.g., product_image.jpg">
-        
-        <button type="submit">Save Product</button>
-        <button type="button" id="btn-cancel-edit">Cancel</button>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Product Name *</label>
+                <input type="text" id="product_name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Price *</label>
+                <input type="number" step="0.01" id="product_price" required>
+            </div>
+
+            <div class="form-group">
+                <label>Brand</label>
+                <select id="product_brand"></select>
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+                <select id="product_category"></select>
+            </div>
+
+            <div class="form-group">
+                <label>Type</label>
+                <select id="product_type"></select>
+            </div>
+
+            <div class="form-group">
+                <label>Stock Quantity</label>
+                <input type="number" id="product_quantity" value="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <textarea id="product_description" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Product Image</label>
+            <input type="file" id="product_image" accept="image/*">
+            <img id="preview-img" src="" alt="Preview" style="display:none; max-width: 200px; margin-top: 10px;">
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">Save Product</button>
+            <button type="button" id="btn-cancel-edit" class="btn btn-secondary">Cancel</button>
+        </div>
     </form>
 
-    <h3>Product List</h3>
-    <table id="admin-product-list">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Product Name</th>
-                <th>Price</th>
-                <th>Status (Active)</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+    <div id="document-upload-section" style="display:none;" class="admin-form">
+        <h3>Upload Document</h3>
+        <input type="hidden" id="upload_product_id">
+        <div class="form-group">
+            <label>Select Document File</label>
+            <input type="file" id="document_file" accept=".pdf,.doc,.docx,.txt">
+        </div>
+        <div id="upload-status" class="status-message"></div>
+        <div class="form-actions">
+            <button type="button" id="btn-upload-document" class="btn btn-primary">Upload</button>
+            <button type="button" id="btn-cancel-upload" class="btn btn-secondary">Cancel</button>
+        </div>
+    </div>
 
-    <div id="pagination-controls" style="margin-top: 20px; text-align: center;">
-        <button id="btn-prev-page" disabled>Previous</button>
-        <span id="page-info" style="margin: 0 20px;">Page 1 of 1</span>
-        <button id="btn-next-page" disabled>Next</button>
+    <div class="table-container">
+        <h3>Product List</h3>
+        <table id="admin-product-list" class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Brand</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-controls">
+        <button id="btn-prev-page" class="btn btn-secondary" disabled>
+            <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <span id="page-info" class="page-info">Page 1 of 1</span>
+        <button id="btn-next-page" class="btn btn-secondary" disabled>
+            Next <i class="fas fa-chevron-right"></i>
+        </button>
     </div>
 </div>
