@@ -219,6 +219,21 @@ export const api = {
                 product_id: product_id
             })
         });
+    },
+
+    trackVisit: (pageUrl) => {
+        const token = localStorage.getItem('jwt_token');
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        return fetchAPI(`${API_BASE_URL}/track_visit.php`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ page_url: pageUrl })
+        });
     }
 };
 

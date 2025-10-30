@@ -992,6 +992,8 @@ async function loadPage(page, id = null) {
     if (page === "change-password") initChangePasswordPage();
     if (page === "privacy") {}
     if (page === "terms") {}
+
+    api.trackVisit(`#${page}${id ? '/' + id : ''}`);
   } catch (error) {
     console.error("Error loading page:", page, error);
     mainContent.innerHTML = `<h1>Error loading page (${page})</h1><p>${error.message}</p>`; // Changed

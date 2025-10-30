@@ -3,6 +3,11 @@ const adminDashboard = {
     visitsChart: null,
 
     async init() {
+        if (typeof Chart === 'undefined') {
+            console.log('Chart.js not loaded yet, waiting...');
+            setTimeout(() => this.init(), 100);
+            return;
+        }
         await this.loadStats();
     },
 
@@ -11,8 +16,11 @@ const adminDashboard = {
             const token = localStorage.getItem('jwt_token');
             const response = await api.admin_getDashboardStats(token);
 
+            console.log('Dashboard stats response:', response);
+
             if (response.success) {
                 const stats = response.data;
+                console.log('Dashboard stats data:', stats);
                 this.updateStatCards(stats);
                 this.renderOrdersChart(stats.orders_by_month);
                 this.renderVisitsChart(stats.weekly_visits);
@@ -27,10 +35,16 @@ const adminDashboard = {
     },
 
     updateStatCards(stats) {
-        document.getElementById('stat-products').textContent = stats.active_products_count || 0;
-        document.getElementById('stat-revenue').textContent = '$' + (stats.monthly_revenue || 0).toFixed(2);
-        document.getElementById('stat-orders').textContent = stats.monthly_orders || 0;
-        document.getElementById('stat-customers').textContent = stats.total_customers || 0;
+        console.log('Updating stat cards with:', stats);
+        const productsEl = document.getElementById('stat-products');
+        const revenueEl = document.getElementById('stat-revenue');
+        const ordersEl = document.getElementById('stat-orders');
+        const customersEl = document.getElementById('stat-customers');
+
+        if (productsEl) productsEl.textContent = stats.active_products_count || 0;
+        if (revenueEl) revenueEl.textContent = '$' + (stats.monthly_revenue || 0).toFixed(2);
+        if (ordersEl) ordersEl.textContent = stats.monthly_orders || 0;
+        if (customersEl) customersEl.textContent = stats.total_customers || 0;
     },
 
     renderOrdersChart(data) {

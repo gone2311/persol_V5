@@ -17,8 +17,8 @@ try {
         SELECT COUNT(*) as total_orders,
                COALESCE(SUM(total_amount), 0) as total_revenue
         FROM ORDERS
-        WHERE MONTH(created_at) = MONTH(CURRENT_DATE())
-          AND YEAR(created_at) = YEAR(CURRENT_DATE())
+        WHERE MONTH(created_at) = MONTH(NOW())
+          AND YEAR(created_at) = YEAR(NOW())
     ");
     $stmt->execute();
     $monthStats = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -32,20 +32,38 @@ try {
             COUNT(*) as order_count,
             COALESCE(SUM(total_amount), 0) as revenue
         FROM ORDERS
-        WHERE created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
         GROUP BY DATE_FORMAT(created_at, '%Y-%m')
         ORDER BY month ASC
     ");
     $stmt->execute();
     $stats['orders_by_month'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Weekly visits for current month (simulated data - you need to implement tracking)
-    $stats['weekly_visits'] = [
-        ['week' => 'Week 1', 'visits' => rand(100, 500)],
-        ['week' => 'Week 2', 'visits' => rand(100, 500)],
-        ['week' => 'Week 3', 'visits' => rand(100, 500)],
-        ['week' => 'Week 4', 'visits' => rand(100, 500)]
-    ];
+    // Weekly visits for current month
+    $stmt = $db->prepare("
+        SELECT
+            CONCAT('Week ', WEEK(visited_at, 1) - WEEK(DATE_SUB(visited_at, INTERVAL DAYOFMONTH(visited_at)-1 DAY), 1) + 1) as week,
+            COUNT(*) as visits
+        FROM SITE_VISITS
+        WHERE MONTH(visited_at) = MONTH(NOW())
+          AND YEAR(visited_at) = YEAR(NOW())
+        GROUP BY WEEK(visited_at, 1)
+        ORDER BY WEEK(visited_at, 1)
+        LIMIT 4
+    ");
+    $stmt->execute();
+    $weeklyVisits = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (empty($weeklyVisits)) {
+        $stats['weekly_visits'] = [
+            ['week' => 'Week 1', 'visits' => 0],
+            ['week' => 'Week 2', 'visits' => 0],
+            ['week' => 'Week 3', 'visits' => 0],
+            ['week' => 'Week 4', 'visits' => 0]
+        ];
+    } else {
+        $stats['weekly_visits'] = $weeklyVisits;
+    }
 
     // Low stock products (stock < 10)
     $stmt = $db->prepare("
