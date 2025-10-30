@@ -1,5 +1,6 @@
 const adminStaff = {
     staffList: [],
+    allUsers: [],
     filteredStaff: [],
     currentPage: 1,
     itemsPerPage: 10,
@@ -16,8 +17,9 @@ const adminStaff = {
             const response = await api.admin_getAllUsers(token);
 
             if (response.success) {
-                this.staffList = (response.data || []).filter(user =>
-                    user.user_type === 'admin' || user.user_type === 'staff'
+                this.allUsers = response.data || [];
+                this.staffList = this.allUsers.filter(user =>
+                    user.user_type === 'admin'
                 );
                 this.filteredStaff = [...this.staffList];
             }
@@ -38,6 +40,10 @@ const adminStaff = {
 
         document.getElementById('filter-status').addEventListener('change', () => {
             this.filterStaff();
+        });
+
+        document.getElementById('user-select').addEventListener('change', (e) => {
+            this.handleUserSelection(e.target.value);
         });
 
         document.getElementById('staff-form').addEventListener('submit', (e) => {
@@ -137,12 +143,45 @@ const adminStaff = {
     },
 
     showCreateModal() {
-        document.getElementById('modal-title').textContent = 'Add New Staff';
+        document.getElementById('modal-title').textContent = 'Change User Role';
         document.getElementById('staff-form').reset();
         document.getElementById('user-id').value = '';
-        document.getElementById('staff-password').placeholder = 'Enter password (required)';
-        document.getElementById('staff-password').required = true;
+        document.getElementById('user-info-group').style.display = 'none';
+        document.getElementById('user-select-group').style.display = 'block';
+        this.populateUserSelect();
         document.getElementById('staff-modal').classList.add('active');
+    },
+
+    populateUserSelect() {
+        const select = document.getElementById('user-select');
+        const customerUsers = this.allUsers.filter(u => u.user_type === 'customer');
+
+        select.innerHTML = '<option value="">Select a user...</option>';
+        customerUsers.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.user_id;
+            option.textContent = `${user.full_name} (${user.email})`;
+            option.dataset.user = JSON.stringify(user);
+            select.appendChild(option);
+        });
+    },
+
+    handleUserSelection(userId) {
+        const infoGroup = document.getElementById('user-info-group');
+        if (!userId) {
+            infoGroup.style.display = 'none';
+            return;
+        }
+
+        const selectedOption = document.querySelector(`#user-select option[value="${userId}"]`);
+        const user = JSON.parse(selectedOption.dataset.user);
+
+        document.getElementById('selected-fullname').textContent = user.full_name;
+        document.getElementById('selected-email').textContent = user.email || 'N/A';
+        document.getElementById('selected-phone').textContent = user.phone_number || 'N/A';
+        document.getElementById('user-id').value = user.user_id;
+
+        infoGroup.style.display = 'block';
     },
 
     closeModal() {
@@ -153,36 +192,31 @@ const adminStaff = {
         const staff = this.staffList.find(s => s.user_id == userId);
         if (!staff) return;
 
-        document.getElementById('modal-title').textContent = 'Edit Staff';
+        document.getElementById('modal-title').textContent = 'Edit User Role';
         document.getElementById('user-id').value = staff.user_id;
-        document.getElementById('staff-fullname').value = staff.full_name;
-        document.getElementById('staff-email').value = staff.email || '';
-        document.getElementById('staff-phone').value = staff.phone_number || '';
+        document.getElementById('user-select-group').style.display = 'none';
+
+        document.getElementById('selected-fullname').textContent = staff.full_name;
+        document.getElementById('selected-email').textContent = staff.email || 'N/A';
+        document.getElementById('selected-phone').textContent = staff.phone_number || 'N/A';
+        document.getElementById('user-info-group').style.display = 'block';
+
         document.getElementById('staff-role').value = staff.user_type;
-        document.getElementById('staff-address').value = staff.address || '';
-        document.getElementById('staff-password').value = '';
-        document.getElementById('staff-password').placeholder = 'Leave empty to keep current';
-        document.getElementById('staff-password').required = false;
 
         document.getElementById('staff-modal').classList.add('active');
     },
 
     async saveStaff() {
         const userId = document.getElementById('user-id').value;
-        const fullName = document.getElementById('staff-fullname').value;
-        const email = document.getElementById('staff-email').value;
-        const phone = document.getElementById('staff-phone').value;
-        const password = document.getElementById('staff-password').value;
         const role = document.getElementById('staff-role').value;
-        const address = document.getElementById('staff-address').value;
 
-        if (!userId && !password) {
-            alert('Password is required for new staff');
+        if (!userId) {
+            alert('Please select a user');
             return;
         }
 
-        if (password && password.length < 6) {
-            alert('Password must be at least 6 characters');
+        if (!role) {
+            alert('Please select a role');
             return;
         }
 
@@ -190,29 +224,14 @@ const adminStaff = {
             const token = localStorage.getItem('jwt_token');
 
             const data = {
-                user_type: role,
-                full_name: fullName,
-                email: email,
-                phone_number: phone,
-                address: address
+                user_id: userId,
+                user_type: role
             };
 
-            if (userId) {
-                data.user_id = userId;
-                if (password) {
-                    data.password = password;
-                }
-            } else {
-                data.password = password;
-                data.username = email;
-            }
-
-            const response = userId
-                ? await this.updateStaff(data, token)
-                : await this.createStaff(data, token);
+            const response = await this.updateStaff(data, token);
 
             if (response.success) {
-                alert(userId ? 'Staff updated successfully!' : 'Staff created successfully!');
+                alert('User role updated successfully!');
                 this.closeModal();
                 await this.loadData();
                 this.renderTable();
@@ -220,20 +239,9 @@ const adminStaff = {
                 alert('Error: ' + response.message);
             }
         } catch (error) {
-            console.error('Error saving staff:', error);
-            alert('Error saving staff: ' + error.message);
+            console.error('Error updating role:', error);
+            alert('Error updating role: ' + error.message);
         }
-    },
-
-    async createStaff(data, token) {
-        return fetch('api/v1/admin/users.php', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        }).then(r => r.json());
     },
 
     async updateStaff(data, token) {

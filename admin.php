@@ -18,19 +18,7 @@
         <nav class="sidebar-nav">
             <a href="#admin_dashboard" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#admin_orders" class="nav-item"><i class="fas fa-file-invoice"></i> Orders</a>
-
-            <div class="has-submenu">
-                <button class="submenu-toggle">
-                    <i class="fas fa-box-open"></i>
-                    <span>Products</span>
-                    <i class="fas fa-chevron-down arrow"></i>
-                </button>
-                <div class="submenu">
-                    <a href="#admin_products">All Products</a>
-                    <a href="#admin_attributes">Attributes</a>
-                </div>
-            </div>
-
+            <a href="#admin_products" class="nav-item"><i class="fas fa-box-open"></i> Products</a>
             <a href="#admin_staff" class="nav-item"><i class="fas fa-user-shield"></i> Staff</a>
             <a href="#admin_customers" class="nav-item"><i class="fas fa-users"></i> Customers</a>
 
@@ -42,18 +30,6 @@
     <main id="admin-app-content">
     </main>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const submenuToggles = document.querySelectorAll('.submenu-toggle');
-            submenuToggles.forEach(toggle => {
-                toggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const parent = this.closest('.has-submenu');
-                    parent.classList.toggle('active');
-                });
-            });
-        });
-    </script>
     <script type="module">
         import { api } from './assets/js/api_service.js';
         window.api = api;
