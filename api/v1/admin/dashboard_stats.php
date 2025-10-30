@@ -17,9 +17,8 @@ try {
         SELECT COUNT(*) as total_orders,
                COALESCE(SUM(total_amount), 0) as total_revenue
         FROM ORDERS
-        WHERE MONTH(order_date) = MONTH(CURRENT_DATE())
-          AND YEAR(order_date) = YEAR(CURRENT_DATE())
-          AND deleted_at IS NULL
+        WHERE MONTH(created_at) = MONTH(CURRENT_DATE())
+          AND YEAR(created_at) = YEAR(CURRENT_DATE())
     ");
     $stmt->execute();
     $monthStats = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -29,13 +28,12 @@ try {
     // Orders by month for the last 6 months
     $stmt = $db->prepare("
         SELECT
-            DATE_FORMAT(order_date, '%Y-%m') as month,
+            DATE_FORMAT(created_at, '%Y-%m') as month,
             COUNT(*) as order_count,
             COALESCE(SUM(total_amount), 0) as revenue
         FROM ORDERS
-        WHERE order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
-          AND deleted_at IS NULL
-        GROUP BY DATE_FORMAT(order_date, '%Y-%m')
+        WHERE created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+        GROUP BY DATE_FORMAT(created_at, '%Y-%m')
         ORDER BY month ASC
     ");
     $stmt->execute();
@@ -53,7 +51,6 @@ try {
     $stmt = $db->prepare("
         SELECT
             p.product_id,
-            p.product_code,
             p.product_name,
             p.stock_quantity,
             b.brand_name
@@ -61,7 +58,6 @@ try {
         LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
         WHERE p.stock_quantity < 10
           AND p.stock_quantity > 0
-          AND p.deleted_at IS NULL
         ORDER BY p.stock_quantity ASC
         LIMIT 10
     ");
@@ -72,7 +68,7 @@ try {
     $stmt = $db->prepare("
         SELECT COUNT(*) as count
         FROM PRODUCTS
-        WHERE stock_quantity = 0 AND deleted_at IS NULL
+        WHERE stock_quantity = 0
     ");
     $stmt->execute();
     $stats['out_of_stock_count'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
@@ -81,7 +77,7 @@ try {
     $stmt = $db->prepare("
         SELECT COUNT(*) as count
         FROM PRODUCTS
-        WHERE is_active = 1 AND deleted_at IS NULL
+        WHERE stock_quantity >= 0
     ");
     $stmt->execute();
     $stats['active_products_count'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
@@ -90,7 +86,7 @@ try {
     $stmt = $db->prepare("
         SELECT COUNT(*) as count
         FROM USERS
-        WHERE user_type = 'customer' AND deleted_at IS NULL
+        WHERE user_type = 'customer'
     ");
     $stmt->execute();
     $stats['total_customers'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
@@ -100,15 +96,14 @@ try {
         SELECT
             o.order_id,
             o.order_code,
-            o.order_date,
+            o.created_at as order_date,
             o.total_amount,
             o.order_status,
             u.full_name as customer_name
         FROM ORDERS o
         LEFT JOIN CUSTOMERS c ON o.customer_id = c.customer_id
         LEFT JOIN USERS u ON c.user_id = u.user_id
-        WHERE o.deleted_at IS NULL
-        ORDER BY o.order_date DESC
+        ORDER BY o.created_at DESC
         LIMIT 10
     ");
     $stmt->execute();
