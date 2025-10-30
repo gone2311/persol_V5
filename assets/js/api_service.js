@@ -23,7 +23,7 @@ async function fetchAPI(url, options = {}) {
     }
 }
 
-const api = {
+export const api = {
     getTemplate: (page) => fetch(`templates/${page}.html`).then(res => res.text()),
 
     getProducts: ({ brand_id = '', category_id = '', min_price = '', max_price = '', search = '' } = {}) => {
@@ -222,4 +222,6 @@ const api = {
     }
 };
 
-window.api = api;
+if (typeof window !== 'undefined') {
+    window.api = api;
+}

@@ -54,7 +54,10 @@
             });
         });
     </script>
-    <script src="assets/js/api_service.js"></script>
+    <script type="module">
+        import { api } from './assets/js/api_service.js';
+        window.api = api;
+    </script>
     <script type="module" src="assets/js/admin.js"></script>
 </body>
 </html>
