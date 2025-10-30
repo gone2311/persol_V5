@@ -54,6 +54,7 @@
             });
         });
     </script>
+    <script src="assets/js/api_service.js"></script>
     <script type="module" src="assets/js/admin.js"></script>
 </body>
 </html>
