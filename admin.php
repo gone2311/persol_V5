@@ -12,15 +12,19 @@
 
     <aside class="admin-sidebar">
         <div class="admin-logo">
-            <img src="assets/images/logo.png" alt="Persol Logo">
+            <img src="assets/images/Logo.png" alt="Persol Logo">
         </div>
 
         <nav class="sidebar-nav">
             <a href="#admin_dashboard" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#admin_orders" class="nav-item"><i class="fas fa-file-invoice"></i> Orders</a>
 
-            <div class="nav-item has-submenu">
-                <a href="#" class="submenu-toggle"><i class="fas fa-box-open"></i> Products <i class="fas fa-chevron-down arrow"></i></a>
+            <div class="has-submenu">
+                <button class="submenu-toggle">
+                    <i class="fas fa-box-open"></i>
+                    <span>Products</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </button>
                 <div class="submenu">
                     <a href="#admin_products">All Products</a>
                     <a href="#admin_attributes">Attributes</a>
@@ -38,6 +42,18 @@
     <main id="admin-app-content">
     </main>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenuToggles = document.querySelectorAll('.submenu-toggle');
+            submenuToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.closest('.has-submenu');
+                    parent.classList.toggle('active');
+                });
+            });
+        });
+    </script>
     <script type="module" src="assets/js/admin.js"></script>
 </body>
 </html>
