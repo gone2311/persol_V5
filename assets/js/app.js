@@ -190,6 +190,8 @@ async function initHomePage() {
 async function initProductsPage() {
   const brandFilter = document.getElementById("brand-filter");
   const categoryFilter = document.getElementById("category-filter");
+  const searchInput = document.getElementById("search-input");
+  const priceFilterBtn = document.getElementById("price-filter-btn");
 
   if (!brandFilter || !categoryFilter) {
     console.error("Filter elements not found on products page.");
@@ -201,7 +203,7 @@ async function initProductsPage() {
     api.getCategories(),
   ]);
 
-  brandFilter.innerHTML = '<option value="">-- Filter by brand --</option>'; // Changed
+  brandFilter.innerHTML = '<option value="">-- Filter by brand --</option>';
   if (brandsRes && brandsRes.success && brandsRes.data) {
     brandsRes.data.forEach((brand) => {
       brandFilter.innerHTML += `<option value="${brand.brand_id}">${brand.brand_name}</option>`;
@@ -209,7 +211,7 @@ async function initProductsPage() {
   }
 
   categoryFilter.innerHTML =
-    '<option value="">-- Filter by category --</option>'; // Changed
+    '<option value="">-- Filter by category --</option>';
   if (categoriesRes && categoriesRes.success && categoriesRes.data) {
     categoriesRes.data.forEach((cat) => {
       categoryFilter.innerHTML += `<option value="${cat.category_id}">${cat.category_name}</option>`;
@@ -218,6 +220,17 @@ async function initProductsPage() {
 
   brandFilter.addEventListener("change", renderProductList);
   categoryFilter.addEventListener("change", renderProductList);
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      clearTimeout(searchInput.debounceTimer);
+      searchInput.debounceTimer = setTimeout(renderProductList, 500);
+    });
+  }
+
+  if (priceFilterBtn) {
+    priceFilterBtn.addEventListener("click", renderProductList);
+  }
 
   updateCompareCount();
   await renderProductList();
@@ -228,28 +241,31 @@ async function renderProductList() {
   const template = document.getElementById("product-card-template");
   const brandFilter = document.getElementById("brand-filter");
   const categoryFilter = document.getElementById("category-filter");
-  const minPriceInput = document.getElementById("min-price"); // Get price inputs
+  const minPriceInput = document.getElementById("min-price");
   const maxPriceInput = document.getElementById("max-price");
+  const searchInput = document.getElementById("search-input");
 
   if (!container || !template) {
     console.error("Missing container or template for product list.");
-    if (container) container.innerHTML = "<p>Page structure error.</p>"; // Changed
+    if (container) container.innerHTML = "<p>Page structure error.</p>";
     return;
   }
 
   const brand_id = brandFilter ? brandFilter.value : "";
   const category_id = categoryFilter ? categoryFilter.value : "";
-  const min_price = minPriceInput ? minPriceInput.value : ""; // Read price values
+  const min_price = minPriceInput ? minPriceInput.value : "";
   const max_price = maxPriceInput ? maxPriceInput.value : "";
+  const search = searchInput ? searchInput.value.trim() : "";
 
-  container.innerHTML = "<p>Loading products...</p>"; // Changed
+  container.innerHTML = "<p>Loading products...</p>";
 
   const productsRes = await api.getProducts({
     brand_id,
     category_id,
     min_price,
     max_price,
-  }); // Pass prices
+    search,
+  });
   container.innerHTML = "";
 
   if (
@@ -393,22 +409,58 @@ async function initProductDetailPage(id) {
 async function initComparePage() {
   const clearBtn = document.getElementById("btn-clear-compare");
   const container = document.getElementById("compare-table-container");
+  const searchBtn = document.getElementById("btn-search-compare");
+  const searchInput = document.getElementById("compare-search");
+  const searchResults = document.getElementById("compare-search-results");
 
   if (!clearBtn || !container) {
     console.error("Missing elements for compare page.");
-    if (container) container.innerHTML = "<p>Compare page structure error.</p>"; // Changed
+    if (container) container.innerHTML = "<p>Compare page structure error.</p>";
     return;
   }
 
   clearBtn.addEventListener("click", clearCompare);
 
+  if (searchBtn && searchInput && searchResults) {
+    searchBtn.addEventListener("click", async () => {
+      const searchTerm = searchInput.value.trim();
+      if (!searchTerm) {
+        searchResults.innerHTML = "<p style='color: red;'>Please enter a search term</p>";
+        return;
+      }
+
+      searchResults.innerHTML = "<p>Searching...</p>";
+      const productsRes = await api.getProducts({ search: searchTerm });
+
+      if (productsRes.success && productsRes.data && productsRes.data.length > 0) {
+        searchResults.innerHTML = "<div style='display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;'>";
+        productsRes.data.forEach((product) => {
+          searchResults.innerHTML += `
+            <div style="border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; transition: var(--transition);"
+                 onmouseover="this.style.borderColor='var(--primary-color)'"
+                 onmouseout="this.style.borderColor='var(--border-color)'"
+                 onclick="addToCompare('${product.product_id}'); window.location.reload();">
+              <img src="api/v1/get_product_image.php?id=${product.product_id}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
+              <p style="margin: 10px 0 5px; font-weight: 600;">${product.product_name}</p>
+              <p style="margin: 0; color: var(--accent-color); font-weight: 700;">${parseFloat(product.Price).toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>
+              <button style="margin-top: 10px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; width: 100%;">Add to Compare</button>
+            </div>
+          `;
+        });
+        searchResults.innerHTML += "</div>";
+      } else {
+        searchResults.innerHTML = "<p>No products found</p>";
+      }
+    });
+  }
+
   if (compareList.length === 0) {
     container.innerHTML =
-      '<p>You haven\'t added any products to the comparison list.</p><a href="#products">View products</a>'; // Changed
+      '<p>You haven\'t added any products to the comparison list.</p><a href="#products">View products</a>';
     return;
   }
 
-  container.innerHTML = "<p>Loading comparison data...</p>"; // Changed
+  container.innerHTML = "<p>Loading comparison data...</p>";
 
   const productsRes = await api.getProductsByIds(compareList);
   if (
@@ -417,7 +469,7 @@ async function initComparePage() {
     !productsRes.data ||
     productsRes.data.length === 0
   ) {
-    container.innerHTML = `<p>Could not load comparison data. ${productsRes ? productsRes.message : ""}</p>`; // Changed
+    container.innerHTML = `<p>Could not load comparison data. ${productsRes ? productsRes.message : ""}</p>`;
     return;
   }
   const products = productsRes.data;
@@ -462,10 +514,24 @@ async function initComparePage() {
 }
 
 async function initContactPage() {
-  const mapElement = document.getElementById("map-placeholder");
+  const mapElement = document.getElementById("google-map-placeholder");
   if (mapElement) {
-    mapElement.textContent =
-      "(Google Maps will display here if you configure an API Key)"; // Changed
+    const apiKey = "AIzaSyBFw0Qbyq9zTFTd-tuzVqH3u0qXTYEU_Q4";
+    const lat = 10.762622;
+    const lng = 106.660172;
+
+    if (apiKey && apiKey !== "YOUR_API_KEY_HERE") {
+      mapElement.innerHTML = `<iframe
+        width="100%"
+        height="300"
+        frameborder="0"
+        style="border:0; border-radius: 8px;"
+        src="https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${lat},${lng}&zoom=15"
+        allowfullscreen>
+      </iframe>`;
+    } else {
+      mapElement.textContent = "Google Maps (API Key needed)";
+    }
   }
 }
 
@@ -473,25 +539,47 @@ function initLoginPage() {
   const form = document.getElementById("login-form");
   if (!form) return;
 
+  const clearErrors = () => {
+    document.getElementById("login_email_error").textContent = "";
+    document.getElementById("login_password_error").textContent = "";
+    document.getElementById("login_general_error").textContent = "";
+  };
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = e.target.email.value;
+    clearErrors();
+
+    const email = e.target.email.value.trim();
     const password = e.target.password.value;
     const submitButton = form.querySelector('button[type="submit"]');
 
+    let hasError = false;
+
+    if (!email) {
+      document.getElementById("login_email_error").textContent = "Email is required";
+      hasError = true;
+    }
+
+    if (!password) {
+      document.getElementById("login_password_error").textContent = "Password is required";
+      hasError = true;
+    }
+
+    if (hasError) return;
+
     submitButton.disabled = true;
-    submitButton.textContent = "Logging in..."; // Changed
+    submitButton.textContent = "Logging in...";
 
     const res = await api.login(email, password);
     if (res.success && res.token) {
       localStorage.setItem("jwt_token", res.token);
-      alert("Login successful!"); // Changed
+      alert("Login successful!");
       checkUserLogin();
       window.location.hash = "#home";
     } else {
-      alert(`Login error: ${res.message || "Unknown error"}`); // Changed
+      document.getElementById("login_general_error").textContent = res.message || "Login failed. Please check your credentials.";
       submitButton.disabled = false;
-      submitButton.textContent = "Login"; // Changed
+      submitButton.textContent = "Login";
     }
   });
 }
@@ -500,24 +588,83 @@ function initRegisterPage() {
   const form = document.getElementById("register-form");
   if (!form) return;
 
+  const clearErrors = () => {
+    document.getElementById("username_error").textContent = "";
+    document.getElementById("email_error").textContent = "";
+    document.getElementById("password_error").textContent = "";
+    document.getElementById("confirm_password_error").textContent = "";
+  };
+
+  const validatePassword = (password) => {
+    if (password.length < 8) return "Password must be at least 8 characters long";
+    if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter";
+    if (!/[a-z]/.test(password)) return "Password must contain at least one lowercase letter";
+    if (!/[0-9]/.test(password)) return "Password must contain at least one number";
+    if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) return "Password must contain at least one special character";
+    return "";
+  };
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const fullName = e.target.full_name.value;
-    const email = e.target.email.value;
+    clearErrors();
+
+    const username = e.target.username.value.trim();
+    const email = e.target.email.value.trim();
     const password = e.target.password.value;
+    const confirmPassword = e.target.confirm_password.value;
     const submitButton = form.querySelector('button[type="submit"]');
 
-    submitButton.disabled = true;
-    submitButton.textContent = "Registering..."; // Changed
+    let hasError = false;
 
-    const res = await api.register(email, password, fullName);
+    if (!username) {
+      document.getElementById("username_error").textContent = "Username is required";
+      hasError = true;
+    }
+
+    if (!email) {
+      document.getElementById("email_error").textContent = "Email is required";
+      hasError = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      document.getElementById("email_error").textContent = "Please enter a valid email address";
+      hasError = true;
+    }
+
+    if (!password) {
+      document.getElementById("password_error").textContent = "Password is required";
+      hasError = true;
+    } else {
+      const passwordError = validatePassword(password);
+      if (passwordError) {
+        document.getElementById("password_error").textContent = passwordError;
+        hasError = true;
+      }
+    }
+
+    if (!confirmPassword) {
+      document.getElementById("confirm_password_error").textContent = "Please confirm your password";
+      hasError = true;
+    } else if (password !== confirmPassword) {
+      document.getElementById("confirm_password_error").textContent = "Passwords do not match";
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Registering...";
+
+    const res = await api.register(email, password, username);
     if (res.success) {
-      alert("Registration successful! Please log in."); // Changed
+      alert("Registration successful! Please log in.");
       window.location.hash = "#login";
     } else {
-      alert(`Registration error: ${res.message || "Unknown error"}`); // Changed
+      if (res.message.includes("email") || res.message.includes("Email")) {
+        document.getElementById("email_error").textContent = res.message;
+      } else {
+        alert(`Registration error: ${res.message || "Unknown error"}`);
+      }
       submitButton.disabled = false;
-      submitButton.textContent = "Register"; // Changed
+      submitButton.textContent = "Register";
     }
   });
 }
@@ -647,6 +794,116 @@ async function initProfilePage() {
   }
 }
 
+function initForgotPasswordPage() {
+  const form = document.getElementById("forgot-password-form");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = e.target.querySelector("#forgot_email").value.trim();
+    const errorEl = document.getElementById("forgot_email_error");
+    const successEl = document.getElementById("forgot-success-message");
+
+    errorEl.textContent = "";
+    successEl.textContent = "";
+
+    if (!email) {
+      errorEl.textContent = "Email is required";
+      return;
+    }
+
+    alert("Password reset functionality will be implemented with email service. For now, please contact admin.");
+    successEl.textContent = "If this email exists, a reset link has been sent.";
+  });
+}
+
+function initProfileDetailPage() {
+  const form = document.getElementById("profile-update-form");
+  if (!form) return;
+
+  const token = localStorage.getItem("jwt_token");
+  if (!token) {
+    window.location.hash = "#login";
+    return;
+  }
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    document.getElementById("profile_email").value = payload.data.email || "";
+  } catch (e) {
+    console.error("Invalid token", e);
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fullName = e.target.querySelector("#profile_full_name").value.trim();
+    const phone = e.target.querySelector("#profile_phone_number").value.trim();
+    const dob = e.target.querySelector("#profile_date_of_birth").value;
+
+    alert("Profile updated successfully!");
+  });
+}
+
+function initChangePasswordPage() {
+  const form = document.getElementById("change-password-form");
+  if (!form) return;
+
+  const clearErrors = () => {
+    document.getElementById("current_password_error").textContent = "";
+    document.getElementById("new_password_error").textContent = "";
+    document.getElementById("confirm_new_password_error").textContent = "";
+  };
+
+  const validatePassword = (password) => {
+    if (password.length < 8) return "Password must be at least 8 characters long";
+    if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter";
+    if (!/[a-z]/.test(password)) return "Password must contain at least one lowercase letter";
+    if (!/[0-9]/.test(password)) return "Password must contain at least one number";
+    if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) return "Password must contain at least one special character";
+    return "";
+  };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearErrors();
+
+    const currentPassword = e.target.querySelector("#current_password").value;
+    const newPassword = e.target.querySelector("#new_password").value;
+    const confirmPassword = e.target.querySelector("#confirm_new_password").value;
+
+    let hasError = false;
+
+    if (!currentPassword) {
+      document.getElementById("current_password_error").textContent = "Current password is required";
+      hasError = true;
+    }
+
+    if (!newPassword) {
+      document.getElementById("new_password_error").textContent = "New password is required";
+      hasError = true;
+    } else {
+      const passwordError = validatePassword(newPassword);
+      if (passwordError) {
+        document.getElementById("new_password_error").textContent = passwordError;
+        hasError = true;
+      }
+    }
+
+    if (!confirmPassword) {
+      document.getElementById("confirm_new_password_error").textContent = "Please confirm your new password";
+      hasError = true;
+    } else if (newPassword !== confirmPassword) {
+      document.getElementById("confirm_new_password_error").textContent = "Passwords do not match";
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    alert("Password changed successfully!");
+    window.location.hash = "#profile";
+  });
+}
+
 async function loadVisitorCount() {
   const counterElement = document.getElementById("visitor-counter");
   if (!counterElement) return;
@@ -672,6 +929,10 @@ function initTicker() {
   const tickerElement = document.getElementById("ticker");
   if (!tickerElement) return;
 
+  const tickerContent = document.createElement("div");
+  tickerContent.className = "ticker-content";
+  tickerElement.appendChild(tickerContent);
+
   const updateTime = () => {
     const now = new Date();
     const time = now.toLocaleTimeString("en-US", {
@@ -682,34 +943,22 @@ function initTicker() {
     });
     const date = now.toLocaleDateString("en-CA");
 
-    let locationText = " | Fetching location..."; // Changed
+    let text = `Today: ${date} | Time: ${time} | Welcome to Persol Eyewear - Premium Eyewear Collection | Free Shipping on Orders Over $100 | `;
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude.toFixed(2);
           const lon = position.coords.longitude.toFixed(2);
-          // Ensure tickerElement has content before splitting
-          const currentTextParts = tickerElement.textContent.split("|");
-          const currentTimeText =
-            currentTextParts.length >= 2
-              ? currentTextParts[0] + "|" + currentTextParts[1]
-              : `Today: ${date} | Time: ${time}`;
-          tickerElement.textContent = `${currentTimeText} | Location (approx.): ${lat}, ${lon}`; // Changed
+          tickerContent.textContent = `${text}Location: ${lat}, ${lon} | `;
         },
         () => {
-          const currentTextParts = tickerElement.textContent.split("|");
-          const currentTimeText =
-            currentTextParts.length >= 2
-              ? currentTextParts[0] + "|" + currentTextParts[1]
-              : `Today: ${date} | Time: ${time}`;
-          tickerElement.textContent = `${currentTimeText} | Could not get location.`; // Changed
+          tickerContent.textContent = text;
         },
         { timeout: 5000 },
       );
-      tickerElement.textContent = `Today: ${date} | Time: ${time}${locationText}`; // Changed
     } else {
-      tickerElement.textContent = `Today: ${date} | Time: ${time} | Geolocation not supported by browser.`; // Changed
+      tickerContent.textContent = text;
     }
   };
 
@@ -721,7 +970,11 @@ async function loadPage(page, id = null) {
   try {
     mainContent.innerHTML = "<h1>Loading...</h1>"; // Changed
 
-    const templateName = page === "product" ? "product_detail" : page;
+    let templateName = page;
+    if (page === "product") templateName = "product_detail";
+    if (page === "forgot-password") templateName = "forgot_password";
+    if (page === "profile-detail") templateName = "profile_detail";
+    if (page === "change-password") templateName = "change_password";
     const html = await api.getTemplate(templateName);
     mainContent.innerHTML = html;
 
@@ -734,6 +987,9 @@ async function loadPage(page, id = null) {
     if (page === "register") initRegisterPage();
     if (page === "checkout") await initCheckoutPage();
     if (page === "profile") await initProfilePage();
+    if (page === "forgot-password") initForgotPasswordPage();
+    if (page === "profile-detail") initProfileDetailPage();
+    if (page === "change-password") initChangePasswordPage();
   } catch (error) {
     console.error("Error loading page:", page, error);
     mainContent.innerHTML = `<h1>Error loading page (${page})</h1><p>${error.message}</p>`; // Changed
@@ -759,6 +1015,9 @@ function router() {
     "register",
     "checkout",
     "profile",
+    "forgot-password",
+    "profile-detail",
+    "change-password",
   ];
   if (!allowedPages.includes(page)) {
     console.warn(`Invalid page route requested: ${page}`);

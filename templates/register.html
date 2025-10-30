@@ -3,23 +3,19 @@
 
     <form id="register-form">
         <label for="register_username">Username:</label>
-        <input type="text" id="register_username" required>
+        <input type="text" id="register_username" name="username" required>
         <div class="error-message" id="username_error"></div>
 
-        <label for="register_full_name">Full Name:</label>
-        <input type="text" id="register_full_name" required>
-        <div class="error-message" id="full_name_error"></div>
-
         <label for="register_email">Email:</label>
-        <input type="email" id="register_email" required>
+        <input type="email" id="register_email" name="email" required>
         <div class="error-message" id="email_error"></div>
 
         <label for="register_password">Password:</label>
-        <input type="password" id="register_password" required>
+        <input type="password" id="register_password" name="password" required>
         <div class="error-message" id="password_error"></div>
 
         <label for="confirm_password">Confirm Password:</label>
-        <input type="password" id="confirm_password" required>
+        <input type="password" id="confirm_password" name="confirm_password" required>
         <div class="error-message" id="confirm_password_error"></div>
 
         <button type="submit" class="btn-submit">Register</button>
@@ -29,3 +25,30 @@
         </p>
     </form>
 </div>
+
+<footer class="main-footer">
+    <div class="container footer-grid">
+        <div class="footer-brand">
+            <h3>PERSOL</h3>
+            <p>Redefining vision, one frame at a time.</p>
+            <div class="social-icons"></div>
+        </div>
+        <div class="footer-links">
+            <h4>Shop</h4>
+            <a href="#products">Products</a>
+            <a href="#products?category=1">Sunglasses</a>
+            <a href="#products?category=2">Frames</a>
+        </div>
+        <div class="footer-links">
+            <h4>About</h4>
+            <a href="#contact">Contact</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p style="color: aquamarine">
+            &copy; 2025 Persol. All rights reserved.
+        </p>
+    </div>
+</footer>

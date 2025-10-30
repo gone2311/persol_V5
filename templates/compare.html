@@ -3,6 +3,46 @@
         <h2 style="color: var(--primary-color); margin: 0;">Product Comparison</h2>
         <button id="btn-clear-compare" style="background: var(--accent-color); margin: 0;">Clear All Comparison</button>
     </div>
+
+    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+        <h4 style="color: var(--primary-color); margin-top: 0;">Add Product to Compare</h4>
+        <div style="display: flex; gap: 15px; align-items: flex-end;">
+            <div style="flex: 1;">
+                <label for="compare-search">Search product:</label>
+                <input type="text" id="compare-search" placeholder="Type product name..." style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border-color); margin-top: 5px;">
+            </div>
+            <button id="btn-search-compare" style="padding: 12px 24px; margin: 0;">Search</button>
+        </div>
+        <div id="compare-search-results" style="margin-top: 15px; max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
     <div id="compare-table-container" style="background: white; padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm);">
     </div>
 </div>
+
+<footer class="main-footer">
+    <div class="container footer-grid">
+        <div class="footer-brand">
+            <h3>PERSOL</h3>
+            <p>Redefining vision, one frame at a time.</p>
+            <div class="social-icons"></div>
+        </div>
+        <div class="footer-links">
+            <h4>Shop</h4>
+            <a href="#products">Products</a>
+            <a href="#products?category=1">Sunglasses</a>
+            <a href="#products?category=2">Frames</a>
+        </div>
+        <div class="footer-links">
+            <h4>About</h4>
+            <a href="#contact">Contact</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p style="color: aquamarine">
+            &copy; 2025 Persol. All rights reserved.
+        </p>
+    </div>
+</footer>

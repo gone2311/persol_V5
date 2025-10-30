@@ -1,6 +1,7 @@
 <div class="container">
     <h2>Products</h2>
     <div class="filters">
+        <input type="text" id="search-input" placeholder="Search products by name..." style="flex: 1; padding: 12px 16px; border-radius: 8px; border: 2px solid var(--border-color); font-size: 0.95rem;">
         <select id="brand-filter">
             <option value="">-- Filter by brand --</option>
         </select>
@@ -12,7 +13,7 @@
             <input type="number" id="min-price" placeholder="0">
             <label for="max-price">Max Price:</label>
             <input type="number" id="max-price" placeholder="Any">
-            <button id="price-filter-btn">Apply Price</button> 
+            <button id="price-filter-btn">Apply Price</button>
         </div>
         <a href="#compare" class="compare-link">Compare (<span id="compare-count">0</span>)</a>
     </div>
@@ -20,3 +21,30 @@
     <div id="product-list-container" class="product-grid">
         </div>
 </div>
+
+<footer class="main-footer">
+    <div class="container footer-grid">
+        <div class="footer-brand">
+            <h3>PERSOL</h3>
+            <p>Redefining vision, one frame at a time.</p>
+            <div class="social-icons"></div>
+        </div>
+        <div class="footer-links">
+            <h4>Shop</h4>
+            <a href="#products">Products</a>
+            <a href="#products?category=1">Sunglasses</a>
+            <a href="#products?category=2">Frames</a>
+        </div>
+        <div class="footer-links">
+            <h4>About</h4>
+            <a href="#contact">Contact</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p style="color: aquamarine">
+            &copy; 2025 Persol. All rights reserved.
+        </p>
+    </div>
+</footer>

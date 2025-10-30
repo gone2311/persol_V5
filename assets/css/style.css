@@ -143,6 +143,26 @@ header .logo img:hover {
   transition: var(--transition);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  opacity: 0;
+  animation: fadeInMenu 0.5s ease-in-out forwards;
+}
+
+#main-menu a:nth-child(1) { animation-delay: 0.1s; }
+#main-menu a:nth-child(2) { animation-delay: 0.2s; }
+#main-menu a:nth-child(3) { animation-delay: 0.3s; }
+#main-menu a:nth-child(4) { animation-delay: 0.4s; }
+#main-menu a:nth-child(5) { animation-delay: 0.5s; }
+#main-menu a:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInMenu {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 #main-menu a:hover {
@@ -187,8 +207,24 @@ header .logo img:hover {
   color: white;
   padding: 10px 0;
   font-size: 0.9rem;
-  text-align: center;
   z-index: 999;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#ticker .ticker-content {
+  display: inline-block;
+  padding-left: 100%;
+  animation: scroll-left 30s linear infinite;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 form {

@@ -154,6 +154,12 @@ try {
                 $params[] = $max_price;
             }
         }
+        if (isset($_GET["search"]) && !empty($_GET["search"])) {
+            $search = trim($_GET["search"]);
+            $where[] = "(p.product_name LIKE ? OR p.product_description LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+        }
 
         $sql = $baseQuery;
         if (count($where) > 0) {

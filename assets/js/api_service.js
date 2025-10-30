@@ -26,12 +26,13 @@ async function fetchAPI(url, options = {}) {
 export const api = {
     getTemplate: (page) => fetch(`templates/${page}.html`).then(res => res.text()),
 
-    getProducts: ({ brand_id = '', category_id = '', min_price = '', max_price = '' } = {}) => {
+    getProducts: ({ brand_id = '', category_id = '', min_price = '', max_price = '', search = '' } = {}) => {
         const params = new URLSearchParams();
         if (brand_id) params.append('brand_id', brand_id);
         if (category_id) params.append('category_id', category_id);
         if (min_price) params.append('min_price', min_price);
         if (max_price) params.append('max_price', max_price);
+        if (search) params.append('search', search);
         return fetchAPI(`${API_BASE_URL}/products.php?${params.toString()}`);
     },
 
