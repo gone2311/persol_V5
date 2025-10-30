@@ -52,6 +52,10 @@ export const api = {
         return fetchAPI(`${API_BASE_URL}/brands.php`);
     },
 
+    getProductTypes: () => {
+        return fetchAPI(`${API_BASE_URL}/categories.php?types=1`);
+    },
+
     getSiteInfo: () => {
         return fetchAPI(`${API_BASE_URL}/site_info.php`);
     },
