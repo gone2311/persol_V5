@@ -1,8 +1,6 @@
 <?php
-require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
-use \Firebase\JWT\JWT;
-use \Firebase\JWT\Key;
+require_once __DIR__ . '/../lib/SimpleJWT.php';
 
 class AuthMiddleware {
     
@@ -30,7 +28,7 @@ class AuthMiddleware {
         }
 
         try {
-            $decoded = JWT::decode($token, new Key(Database::$jwt_key, 'HS256'));
+            $decoded = SimpleJWT::decode($token, Database::$jwt_key, 'HS256');
             return $decoded->data;
         } catch (Exception $e) {
             self::sendError(401, 'Access denied. Invalid token: ' . $e->getMessage());

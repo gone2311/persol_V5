@@ -2,9 +2,8 @@
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: POST");
 
-require_once '../../vendor/autoload.php';
 require_once './config/database.php';
-use \Firebase\JWT\JWT;
+require_once './lib/SimpleJWT.php';
 
 $db = (new Database())->getConnection();
 $data = json_decode(file_get_contents("php://input"));
@@ -74,7 +73,7 @@ try {
                     ]
                 ];
 
-                $jwt = JWT::encode($token_payload, Database::$jwt_key, 'HS256');
+                $jwt = SimpleJWT::encode($token_payload, Database::$jwt_key, 'HS256');
 
                 http_response_code(200);
                 echo json_encode(['success' => true, 'message' => 'Login successful.', 'token' => $jwt]);
