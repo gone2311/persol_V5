@@ -1,0 +1,25 @@
+<div class="container" style="max-width: 500px;">
+    <h2>Login</h2>
+    <p>Please log in to checkout and view your order history.</p>
+
+    <form id="login-form">
+        <label for="email">Email:</label>
+        <input type="email" id="email" required>
+        <div class="error-message" id="login_email_error"></div>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" required>
+        <div class="error-message" id="login_password_error"></div>
+        <div class="error-message" id="login_general_error"></div> 
+
+
+        <button type="submit" class="btn-submit">Login</button>
+
+        <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <a href="#forgot-password">Forgot Password?</a>
+            <span>
+                No account yet? <a href="#register">Register now</a>
+            </span>
+        </div>
+    </form>
+</div>

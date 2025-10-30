@@ -1,0 +1,43 @@
+<div class="container" id="product-detail-container">
+    <a href="#products" style="display: inline-flex; align-items: center; gap: 8px; color: var(--primary-color); font-weight: 600; margin-bottom: 30px;">&larr; Back to list</a>
+
+    <div class="product-detail-layout">
+        <div class="product-detail-image">
+            <img id="product-image" src="uploads/product_images/placeholder.jpg" alt="Product Image">
+        </div>
+
+        <div class="product-detail-info">
+            <h1 id="product-name" style="margin-bottom: 20px;"></h1>
+            <div style="display: flex; gap: 30px; margin-bottom: 20px; color: var(--text-light);">
+                <p style="margin: 0;">Brand: <span id="product-brand" style="color: var(--secondary-color); font-weight: 600;"></span></p>
+                <p style="margin: 0;">Category: <span id="product-category" style="color: var(--text-dark); font-weight: 600;"></span></p>
+            </div>
+            <div id="product-price" class="price"></div>
+            <p id="product-description" style="color: var(--text-light); line-height: 1.8; margin: 20px 0;"></p>
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button id="btn-add-to-cart" class="btn-primary" style="flex: 1; margin: 0;">Add to cart</button>
+                <button id="btn-add-to-compare" class="btn-secondary" style="margin: 0;">Add to comparison</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="product-tabs">
+        <h3>Specifications</h3>
+        <div style="overflow-x: auto;">
+            <table id="product-specs" style="background: white;">
+                <thead>
+                    <tr style="background: linear-gradient(135deg, var(--primary-color) 0%, #1a252f 100%); color: white;">
+                        <th style="color: white; border: none;">Specification</th>
+                        <th style="color: white; border: none;">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Documents</h3>
+        <ul id="product-docs" style="list-style: none; padding: 0;">
+        </ul>
+    </div>
+</div>

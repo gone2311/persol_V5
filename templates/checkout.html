@@ -1,0 +1,34 @@
+<div class="container" id="checkout-page">
+    <h2 style="color: var(--primary-color); margin-bottom: 30px;">Cart & Checkout</h2>
+
+    <div id="cart-summary" style="background: #f9f9f9; padding: 25px; border-radius: 12px; margin-bottom: 30px; box-shadow: var(--shadow-sm);">
+    </div>
+
+    <form id="checkout-form" style="background: white; padding: 30px; border-radius: 12px; box-shadow: var(--shadow-sm);">
+        <h3 style="color: var(--primary-color); margin-top: 0; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color);">Shipping Information</h3>
+
+        <label for="recipient_name">Recipient Full Name</label>
+        <input type="text" id="recipient_name" placeholder="John Doe" required>
+
+        <label for="recipient_number">Phone Number</label>
+        <input type="tel" id="recipient_number" placeholder="0912345678" required>
+
+        <label for="shipping_address">Shipping Address</label>
+        <textarea id="shipping_address" rows="3" placeholder="123 ABC Street, XYZ District, HCMC" required></textarea>
+
+        <label for="order_notes">Order Notes</label>
+        <textarea id="order_notes" rows="2" placeholder="Please call before delivery..."></textarea>
+
+        <label for="payment_method">Payment Method</label>
+        <select id="payment_method">
+            <option value="cod">Cash on Delivery (COD)</option>
+            <option value="bank_transfer">Bank Transfer</option>
+        </select>
+
+        <div style="background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%); color: white; padding: 20px; border-radius: 12px; margin-top: 30px; text-align: center;">
+            <h3 id="total-amount-display" style="margin: 0; color: white; font-size: 1.75rem;">Total: 0 ₫</h3>
+        </div>
+
+        <button type="submit" class="btn-submit" style="width: 100%;">Complete Order</button>
+    </form>
+</div>

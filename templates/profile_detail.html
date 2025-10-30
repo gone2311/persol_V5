@@ -1,0 +1,24 @@
+<div class="container" style="max-width: 600px;">
+    <h2>Profile Details</h2>
+
+    <form id="profile-update-form">
+        <label for="profile_email">Email:</label>
+        <input type="email" id="profile_email" disabled> {/* Email thường không cho sửa */}
+
+        <label for="profile_full_name">Full Name:</label>
+        <input type="text" id="profile_full_name" required>
+
+        <label for="profile_phone_number">Phone Number:</label>
+        <input type="tel" id="profile_phone_number">
+
+        <label for="profile_date_of_birth">Date of Birth:</label>
+        <input type="date" id="profile_date_of_birth">
+
+
+        <button type="submit" class="btn-submit">Update Profile</button>
+    </form>
+
+    <hr style="margin: 30px 0;">
+
+    <a href="#change-password">Change Password</a> | <a href="#profile">Back to Order History</a>
+</div>

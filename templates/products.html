@@ -1,0 +1,22 @@
+<div class="container">
+    <h2>Products</h2>
+    <div class="filters">
+        <select id="brand-filter">
+            <option value="">-- Filter by brand --</option>
+        </select>
+        <select id="category-filter">
+            <option value="">-- Filter by category --</option>
+        </select>
+        <div class="price-filter">
+            <label for="min-price">Min Price:</label>
+            <input type="number" id="min-price" placeholder="0">
+            <label for="max-price">Max Price:</label>
+            <input type="number" id="max-price" placeholder="Any">
+            <button id="price-filter-btn">Apply Price</button> 
+        </div>
+        <a href="#compare" class="compare-link">Compare (<span id="compare-count">0</span>)</a>
+    </div>
+
+    <div id="product-list-container" class="product-grid">
+        </div>
+</div>
