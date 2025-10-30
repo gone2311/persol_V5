@@ -70,9 +70,13 @@ try {
                     $params = [$searchParam, $searchParam];
                 }
 
-                $baseQuery = "SELECT p.product_id, p.product_name, p.Price, p.is_active, p.stock_quantity, b.brand_name
+                $baseQuery = "SELECT p.product_id, p.product_code, p.product_name, p.Price as price, p.is_active,
+                                     p.stock_quantity, p.product_description as description, p.specifications,
+                                     p.main_image_path, p.product_document_path, p.product_document_name,
+                                     b.brand_id, b.brand_name, c.category_id, c.category_name
                               FROM PRODUCTS p
                               LEFT JOIN BRANDS b ON p.brand_id = b.brand_id
+                              LEFT JOIN CATEGORIES c ON p.category_id = c.category_id
                               $whereClause
                               ORDER BY p.product_id DESC";
                 $stmt = $db->prepare($baseQuery);

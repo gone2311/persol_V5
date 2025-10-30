@@ -110,6 +110,13 @@ export const api = {
         });
     },
 
+    admin_getAllProducts: (token) => {
+        return fetchAPI(`${API_BASE_URL}/admin/products.php`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+    },
+
     admin_createProduct: (formData, token) => {
         return fetchAPI(`${API_BASE_URL}/admin/products.php`, {
             method: 'POST',
@@ -189,6 +196,27 @@ export const api = {
                 _method: 'TOGGLE_STATUS',
                 user_id: user_id,
                 new_status: new_status
+            })
+        });
+    },
+
+    admin_getDashboardStats: (token) => {
+        return fetchAPI(`${API_BASE_URL}/admin/dashboard_stats.php`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+    },
+
+    admin_deleteProduct: (product_id, token) => {
+        return fetchAPI(`${API_BASE_URL}/admin/products.php`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                _method: 'DELETE',
+                product_id: product_id
             })
         });
     }

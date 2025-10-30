@@ -13,7 +13,26 @@ async function loadPage(page) {
         const html = await api.getTemplate(page);
         mainContent.innerHTML = html;
 
-        if (page === 'admin_products') await initAdminProductsPage();
+        if (page === 'admin_dashboard') {
+            const script = document.createElement('script');
+            script.src = 'assets/js/admin_dashboard.js';
+            script.onload = () => {
+                if (window.adminDashboard) {
+                    window.adminDashboard.init();
+                }
+            };
+            document.body.appendChild(script);
+        }
+        if (page === 'admin_products') {
+            const script = document.createElement('script');
+            script.src = 'assets/js/admin_products.js';
+            script.onload = () => {
+                if (window.adminProducts) {
+                    window.adminProducts.init();
+                }
+            };
+            document.body.appendChild(script);
+        }
         if (page === 'admin_orders') await initAdminOrdersPage();
         if (page === 'admin_attributes') await initAdminAttributesPage();
         if (page === 'admin_staff') await initAdminStaffPage();
@@ -27,7 +46,8 @@ async function loadPage(page) {
     }
 }
 
-async function initAdminProductsPage() {
+// Products page now uses admin_products.js
+async function initAdminProductsPage_OLD() {
     const form = document.getElementById('product-form');
     const tableBody = document.querySelector('#admin-product-list tbody');
     const showAddFormBtn = document.getElementById('btn-show-add-form');
