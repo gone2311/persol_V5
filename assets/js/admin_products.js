@@ -241,7 +241,6 @@ const adminProducts = {
         document.getElementById('product-price').value = product.price;
         document.getElementById('product-stock').value = product.stock_quantity;
         document.getElementById('product-description').value = product.description || '';
-        document.getElementById('product-specs').value = product.specifications || '';
 
         if (product.image_filename) {
             const imageUrl = `api/v1/get_product_image.php?id=${product.product_id}`;
@@ -271,7 +270,6 @@ const adminProducts = {
         formData.append('price', document.getElementById('product-price').value);
         formData.append('stock_quantity', document.getElementById('product-stock').value);
         formData.append('description', document.getElementById('product-description').value);
-        formData.append('specifications', document.getElementById('product-specs').value);
         formData.append('document_filename', document.getElementById('product-document-select').value);
 
         const imageFile = document.getElementById('product-image').files[0];

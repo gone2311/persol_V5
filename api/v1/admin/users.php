@@ -35,7 +35,7 @@ try {
             }
 
             $stmt = $db->prepare("
-                SELECT user_id, user_code, user_type, email, full_name, phone_number, address, is_active, created_at
+                SELECT user_id, user_code, user_type, email, full_name, phone_number, is_active, created_at
                 FROM USERS
                 $whereClause
                 ORDER BY created_at DESC
@@ -66,18 +66,16 @@ try {
             $password_hash = password_hash($data->password, PASSWORD_BCRYPT);
 
             $stmt = $db->prepare("
-                INSERT INTO USERS (user_code, user_type, username, password, email, full_name, phone_number, address, is_active)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+                INSERT INTO USERS (user_code, user_type, email, password_hash, full_name, phone_number, is_active)
+                VALUES (?, ?, ?, ?, ?, ?, 1)
             ");
             $stmt->execute([
                 $user_code,
                 $data->user_type,
                 $data->email,
                 $password_hash,
-                $data->email,
                 $data->full_name,
-                $data->phone_number ?? null,
-                $data->address ?? null
+                $data->phone_number ?? null
             ]);
 
             http_response_code(201);
@@ -111,12 +109,8 @@ try {
                 $updateFields[] = "phone_number = ?";
                 $updateParams[] = $data->phone_number;
             }
-            if (isset($data->address)) {
-                $updateFields[] = "address = ?";
-                $updateParams[] = $data->address;
-            }
             if (!empty($data->password)) {
-                $updateFields[] = "password = ?";
+                $updateFields[] = "password_hash = ?";
                 $updateParams[] = password_hash($data->password, PASSWORD_BCRYPT);
             }
 
