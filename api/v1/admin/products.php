@@ -24,24 +24,38 @@ try {
 
     switch ($actual_method) {
         case 'POST':
-            if (empty($_POST['product_name']) || !isset($_POST['Price'])) {
+            if (empty($_POST['product_name']) || !isset($_POST['price'])) {
                 http_response_code(400);
                 $response['message'] = 'Product Name and Price are required.';
                 echo json_encode($response);
                 exit();
             }
-            $sql = "INSERT INTO PRODUCTS (product_name, Price, brand_id, category_id, type_id, product_description, stock_quantity, main_image, document_filename, is_active)
+
+            $imageFilename = null;
+            if (isset($_FILES['main_image_file']) && $_FILES['main_image_file']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = '../../uploads/product_images/';
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                $imageFilename = basename($_FILES['main_image_file']['name']);
+                $uploadPath = $uploadDir . $imageFilename;
+                if (!move_uploaded_file($_FILES['main_image_file']['tmp_name'], $uploadPath)) {
+                    $imageFilename = null;
+                }
+            }
+
+            $sql = "INSERT INTO PRODUCTS (product_name, Price, brand_id, category_id, type_id, product_description, stock_quantity, image_filename, document_filename, is_active)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
             $stmt = $db->prepare($sql);
             $stmt->execute([
                 $_POST['product_name'],
-                $_POST['Price'],
+                $_POST['price'],
                 $_POST['brand_id'] ?: null,
                 $_POST['category_id'] ?: null,
                 $_POST['type_id'] ?: null,
-                $_POST['product_description'] ?? '',
+                $_POST['description'] ?? '',
                 $_POST['stock_quantity'] ?? 0,
-                $_POST['main_image'] ?? null,
+                $imageFilename,
                 $_POST['document_filename'] ?? null
             ]);
             http_response_code(201);
@@ -94,20 +108,38 @@ try {
                 echo json_encode($response);
                 exit();
             }
+
+            $stmt = $db->prepare("SELECT image_filename FROM PRODUCTS WHERE product_id = ?");
+            $stmt->execute([$_POST['product_id']]);
+            $currentProduct = $stmt->fetch(PDO::FETCH_ASSOC);
+            $imageFilename = $currentProduct['image_filename'] ?? null;
+
+            if (isset($_FILES['main_image_file']) && $_FILES['main_image_file']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = '../../uploads/product_images/';
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                $imageFilename = basename($_FILES['main_image_file']['name']);
+                $uploadPath = $uploadDir . $imageFilename;
+                if (!move_uploaded_file($_FILES['main_image_file']['tmp_name'], $uploadPath)) {
+                    $imageFilename = $currentProduct['image_filename'] ?? null;
+                }
+            }
+
             $sql = "UPDATE PRODUCTS SET
                         product_name = ?, Price = ?, brand_id = ?, category_id = ?, type_id = ?,
-                        product_description = ?, stock_quantity = ?, main_image = ?, document_filename = ?
+                        product_description = ?, stock_quantity = ?, image_filename = ?, document_filename = ?
                     WHERE product_id = ?";
             $stmt = $db->prepare($sql);
             $stmt->execute([
                 $_POST['product_name'],
-                $_POST['Price'],
+                $_POST['price'],
                 $_POST['brand_id'] ?: null,
                 $_POST['category_id'] ?: null,
                 $_POST['type_id'] ?: null,
-                $_POST['product_description'] ?? '',
+                $_POST['description'] ?? '',
                 $_POST['stock_quantity'] ?? 0,
-                $_POST['main_image'] ?? null,
+                $imageFilename,
                 $_POST['document_filename'] ?? null,
                 $_POST['product_id']
             ]);
